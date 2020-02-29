@@ -10,16 +10,20 @@ const pushInfo = (msg: string) => {
   state.infos.push(msg)
 }
 const removeInfo = (msg: string) => {
-  state.infos = state.infos.filter(s => s !== msg)
+  state.infos = state.infos.filter((s: string) => s !== msg)
 }
 const pushError = (msg: string) => {
   if (state.errors.includes(msg)) return
   state.errors.push(msg)
 }
 const removeError = (msg: string) => {
-  state.errors = state.errors.filter(s => s !== msg)
+  state.errors = state.errors.filter((s: string) => s !== msg)
+}
+const clear = () => {
+  state.infos = []
+  state.errors = []
 }
 
 export function useMessages() {
-  return { state, pushInfo, pushError, removeInfo, removeError }
+  return { state, pushInfo, pushError, removeInfo, removeError, clear }
 }
