@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postbuild": "FILE=./node_modules/@vue/cli-plugin-typescript/index.js; sed \"s/if (\\!process\\.env\\.VUE_CLI_TEST) {/let isUsingNextCompiler=true;try\\{require('@vue\\/compiler-sfc')\\}catch(e)\\{isUsingNextCompiler=false\\}if(\\!process\\.env\\.VUE_CLI_TEST\\&\\&\\!isUsingNextCompiler)\\{/\" $FILE > $FILE.tmp && mv $FILE.tmp $FILE && echo 'see https://github.com/vuejs/vue-cli/pull/5172'",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "yarn postbuild && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit"
@@ -38,7 +39,6 @@
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",
     "typescript": "~3.7.5",
-    "vue-cli-plugin-vue-next": "^0.0.4",
-    "vue-template-compiler": "^2.6.11"
+    "vue-cli-plugin-vue-next": "^0.0.4"
   }
 }

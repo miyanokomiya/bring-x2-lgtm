@@ -46,7 +46,7 @@ export default {
       const file = files[0]
       readImageFile(file)
         .then(({ base64, width, height }) => {
-          ctx.emit('loadImage', base64)
+          ctx.emit('loadImage', base64, width, height)
         })
         .catch(e => {
           pushError(`Failed to read file: ${e.message}`)
