@@ -17,7 +17,11 @@
       </p>
     </div>
     <UploadForm @loadImage="loadImage" />
-    <img :src="state.src" />
+    <div class="mt-12 flex items-center justify-center">
+      <img :src="state.src" class="mx-4" />
+      <img :src="state.src" class="mx-4" />
+      <img :src="state.src" class="mx-4" />
+    </div>
   </div>
 </template>
 

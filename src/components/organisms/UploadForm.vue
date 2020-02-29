@@ -5,9 +5,9 @@
       @dragleave.prevent
       @drop.prevent="inputFile"
       @click="clickInput"
-      class="w-32 border"
+      class="w-32 h-32 border bg-gray-100 hover:bg-gray-200"
     >
-      Upload
+      Click or Drop Image
     </button>
     <input
       v-show="false"
