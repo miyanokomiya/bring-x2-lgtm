@@ -12,6 +12,7 @@ export interface Polygon {
 }
 
 export interface Canvas {
+  id: number
   width: number
   height: number
   src: string
@@ -27,6 +28,7 @@ export function useCanvas(editor: Editor, canvas: Partial<Canvas> = {}) {
     canvas: Canvas
   }>({
     canvas: {
+      id: Math.random(),
       width: editor.width,
       height: editor.height,
       src: canvas.src || '',
