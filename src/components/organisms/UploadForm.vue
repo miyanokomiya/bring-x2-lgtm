@@ -5,6 +5,7 @@
       @dragleave.prevent
       @drop.prevent="inputFile"
       @click="clickInput"
+      class="w-32 border"
     >
       Upload
     </button>
