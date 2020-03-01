@@ -1,90 +1,80 @@
 <template>
-  <div id="app">
+  <div id="app" class="pt-4 pb-12">
     <div>
-      <p
-        v-for="info in messages.state.infos"
-        :key="info"
-        @click="messages.removeInfo(info)"
+      <div
+        class="flex items-center justify-center flex-wrap canvas-list"
+        :class="{ toggling: state.toggling }"
       >
-        {{ info }}
-      </p>
-      <p
-        v-for="error in messages.state.errors"
-        :key="error"
-        @click="messages.removeError(error)"
-      >
-        {{ error }}
-      </p>
+        <div
+          v-for="(c, i) in state.canvases"
+          :key="i"
+          class="last:mr-0 w-1/2 border-2 border-gray-300 cursor-pointer select-none sm:w-1/3"
+          :class="{ 'border-green-500': i === state.baseIndex }"
+          @click="pickCanvas(i)"
+        >
+          <SvgCanvas :canvas="c.state.canvas" />
+        </div>
+      </div>
     </div>
-    <div class="mt-4 px-4 flex items-center">
-      <EditorForm class="mr-8" />
-      <UploadForm @loadImage="loadImage" />
-    </div>
-    <div class="mt-4 px-4 flex items-center">
+    <div class="mt-4 px-4 flex items-center flex-wrap">
       <KeyTag
-        class="mr-2"
+        class="mr-2 mb-2"
         label="Size"
         :selected="state.randomizeKyes.includes('fontSize')"
         @select="toggleRandomizeKey('fontSize')"
       />
       <KeyTag
-        class="mr-2"
+        class="mr-2 mb-2"
+        label="Weight"
+        :selected="state.randomizeKyes.includes('fontWeight')"
+        @select="toggleRandomizeKey('fontWeight')"
+      />
+      <KeyTag
+        class="mr-2 mb-2"
         label="Fill"
         :selected="state.randomizeKyes.includes('fill')"
         @select="toggleRandomizeKey('fill')"
       />
       <KeyTag
-        class="mr-2"
+        class="mr-2 mb-2"
         label="Stroke"
         :selected="state.randomizeKyes.includes('stroke')"
         @select="toggleRandomizeKey('stroke')"
       />
       <KeyTag
-        class="mr-2"
+        class="mr-2 mb-2"
         label="X"
         :selected="state.randomizeKyes.includes('x')"
         @select="toggleRandomizeKey('x')"
       />
       <KeyTag
-        class="mr-2"
+        class="mr-2 mb-2"
         label="Y"
         :selected="state.randomizeKyes.includes('y')"
         @select="toggleRandomizeKey('y')"
       />
+      <KeyTag
+        class="mr-2 mb-2"
+        label="Angle"
+        :selected="state.randomizeKyes.includes('radian')"
+        @select="toggleRandomizeKey('radian')"
+      />
+      <KeyTag
+        class="mr-2 mb-2"
+        label="Rotate"
+        :selected="state.randomizeKyes.includes('textRadian')"
+        @select="toggleRandomizeKey('textRadian')"
+      />
     </div>
-    <div
-      class="mt-4 flex items-center justify-center canvas-list"
-      :class="{ toggling: state.toggling }"
-    >
-      <div
-        v-for="(c, i) in state.canvases.filter((_, i) => i < 3)"
-        :key="i"
-        class="mx-1 last:mr-0 w-1/3 border-2 border-gray-300 cursor-pointer select-none"
-        :class="{ 'border-green-500': i === 1 }"
-        @click="pickCanvas(i)"
-      >
-        <SvgCanvas :canvas="c.state.canvas" />
-      </div>
-    </div>
-    <div
-      class="mt-4 flex items-center justify-center canvas-list"
-      :class="{ toggling: state.toggling }"
-    >
-      <div
-        v-for="(c, i) in state.canvases.filter((_, i) => 3 <= i)"
-        :key="i"
-        class="mx-1 last:mr-0 w-1/3 border-2 border-gray-300 cursor-pointer select-none"
-        @click="pickCanvas(i + 3)"
-      >
-        <SvgCanvas :canvas="c.state.canvas" />
-      </div>
+    <div class="mt-2 px-4 flex items-center flex-col sm:flex-row">
+      <EditorForm class="mb-4 sm:mb-0 sm:mr-8" />
+      <UploadForm @loadImage="loadImage" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, watch } from 'vue'
-import { useMessages } from '@/hooks/messages'
+import { reactive, computed, watch } from 'vue'
 import { useCanvas, randomize, Polygon, Canvas } from '@/hooks/canvas'
 import { useEditor } from '@/hooks/editor'
 import UploadForm from '@/components/organisms/UploadForm.vue'
@@ -101,7 +91,6 @@ export default {
     KeyTag
   },
   setup() {
-    const messages = useMessages()
     const editor = useEditor()
     const state = reactive({
       canvases: [
@@ -112,8 +101,12 @@ export default {
         useCanvas(editor.state),
         useCanvas(editor.state)
       ],
+      baseIndex: computed((): number => 0),
+      baseCanvas: computed(
+        (): Canvas => state.canvases[state.baseIndex].state.canvas
+      ),
       toggling: false,
-      randomizeKyes: ['fontSize', 'fill'] as string[]
+      randomizeKyes: ['fontSize', 'fontWeight', 'fill', 'radian'] as string[]
     })
 
     const loadImage = (base64: string) => {
@@ -145,12 +138,16 @@ export default {
         setTimeout(() => {
           exec()
           state.toggling = false
-          const polygon = canvas.state.canvas.polygons[0]
+          const polygon = state.baseCanvas.polygons[0]
           if (polygon) {
             editor.state.fontSize = polygon.fontSize
             editor.state.fill = polygon.fill
             editor.state.stroke = polygon.stroke
             editor.state.fontWeight = polygon.fontWeight
+            editor.state.x = polygon.x
+            editor.state.y = polygon.y
+            editor.state.radian = polygon.radian
+            editor.state.textRadian = polygon.textRadian
           }
         }, 300)
       }
@@ -164,17 +161,24 @@ export default {
         editor.state.fontSize,
         editor.state.fontWeight,
         editor.state.stroke,
-        editor.state.fill
+        editor.state.fill,
+        editor.state.x,
+        editor.state.y,
+        editor.state.radian,
+        editor.state.textRadian
       ],
       () => {
-        state.canvases[1].state.canvas.width = editor.state.width
-        state.canvases[1].state.canvas.height = editor.state.height
-        state.canvases[1].state.canvas.polygons.forEach((p: Polygon) => {
+        state.baseCanvas.width = editor.state.width
+        state.baseCanvas.height = editor.state.height
+        state.baseCanvas.polygons.forEach((p: Polygon) => {
           p.text = editor.state.text
           p.fontSize = editor.state.fontSize
           p.fontWeight = editor.state.fontWeight
           p.stroke = editor.state.stroke
-          p.fill = editor.state.fill
+          p.x = editor.state.x
+          p.y = editor.state.y
+          p.radian = editor.state.radian
+          p.textRadian = editor.state.textRadian
         })
       }
     )
@@ -187,15 +191,14 @@ export default {
         state.randomizeKyes.splice(index, 1)
       }
 
-      pickCanvas(1)
+      pickCanvas(state.baseIndex)
     }
 
-    pickCanvas(1)
+    pickCanvas(state.baseIndex)
 
     return {
       state,
       toggleRandomizeKey,
-      messages,
       loadImage,
       pickCanvas
     }
@@ -218,17 +221,31 @@ export default {
   }
   &.toggling {
     > div {
-      opacity: 0.5;
       transform: scale(0, 0);
 
-      &:nth-child(3n + 1) {
+      &:nth-child(2n + 1) {
         transform-origin: bottom right;
       }
-      &:nth-child(3n + 2) {
-        transform-origin: bottom center;
-      }
-      &:nth-child(3n) {
+      &:nth-child(2n) {
         transform-origin: bottom left;
+      }
+    }
+  }
+}
+
+@media (min-width: 640px) {
+  .canvas-list {
+    &.toggling {
+      > div {
+        &:nth-child(3n + 1) {
+          transform-origin: bottom right;
+        }
+        &:nth-child(3n + 2) {
+          transform-origin: bottom center;
+        }
+        &:nth-child(3n) {
+          transform-origin: bottom left;
+        }
       }
     }
   }
