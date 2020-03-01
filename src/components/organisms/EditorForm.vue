@@ -24,6 +24,18 @@
     </div>
     <div class="flex itemx-center flex-wrap">
       <label class="mb-2 flex items-center">
+        <span class="mr-2 w-24 text-right">Rotate: </span>
+        <div class="w-56">
+          <DefaultInput
+            type="number"
+            :value="Math.round(editor.state.textAngle)"
+            @update="editor.update({ textAngle: $event })"
+          />
+        </div>
+      </label>
+    </div>
+    <div class="flex itemx-center flex-wrap">
+      <label class="mb-2 flex items-center">
         <span class="mr-2 w-24 text-right">Size: </span>
         <div class="w-56">
           <DefaultInput

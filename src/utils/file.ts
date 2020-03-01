@@ -1,5 +1,15 @@
 type ImageData = { base64: string; width: number; height: number }
 
+export function imageToBase64(img: HTMLImageElement): string {
+  const canvas = document.createElement('canvas')
+  canvas.width = img.width
+  canvas.height = img.height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Failed to create canvas.')
+  ctx.drawImage(img, 0, 0)
+  return canvas.toDataURL()
+}
+
 export function readImageFile(file: File): Promise<ImageData> {
   return new Promise<ImageData>((resolve, reject) => {
     const fileReader = new FileReader()
@@ -21,7 +31,7 @@ export function readImageFile(file: File): Promise<ImageData> {
   })
 }
 
-function saveFileInWeb(file: string, ex: string) {
+export function saveFileInWeb(file: string, ex: string) {
   const a = document.createElement('a')
   a.href = file
   a.download = `${Date.now()}.${ex}`

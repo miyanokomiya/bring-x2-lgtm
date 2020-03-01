@@ -66,17 +66,30 @@
         @select="toggleRandomizeKey('textRadian')"
       />
     </div>
-    <div class="mt-2 px-4 flex items-center flex-col sm:flex-row">
+    <div class="mt-2 px-4 flex flex-col sm:flex-row">
       <EditorForm class="mb-4 sm:mb-0 sm:mr-8" />
-      <UploadForm @loadImage="loadImage" />
+      <div class="flec flex-col">
+        <UploadForm @loadImage="loadImage" />
+        <button
+          class="mt-2 w-32 h-8 border bg-blue-100 hover:bg-blue-200"
+          @click="download"
+        >
+          Download
+        </button>
+      </div>
+      <div class="w-0 h-0" ref="hiddenCanvas">
+        <SvgCanvas :canvas="state.baseCanvas" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useCanvas, randomize, Polygon, Canvas } from '@/hooks/canvas'
 import { useEditor } from '@/hooks/editor'
+import { imageToBase64, saveFileInWeb } from '@/utils/file'
+import sampleImage from '@/assets/cat.jpg'
 import UploadForm from '@/components/organisms/UploadForm.vue'
 import EditorForm from '@/components/organisms/EditorForm.vue'
 import SvgCanvas from '@/components/molecules/SvgCanvas.vue'
@@ -91,6 +104,7 @@ export default {
     KeyTag
   },
   setup() {
+    const hiddenCanvas = ref('111')
     const editor = useEditor()
     const state = reactive({
       canvases: [
@@ -113,6 +127,13 @@ export default {
       state.canvases.forEach(c => (c.state.canvas.src = base64))
     }
 
+    const img = new Image()
+    img.onload = () => {
+      loadImage(imageToBase64(img))
+    }
+    img.onerror = e => console.log(e)
+    img.src = sampleImage
+
     const randomizeCanvases = (canvas: Canvas): Canvas[] => {
       const rand = Math.random()
       return state.canvases.map((_, i) => {
@@ -120,37 +141,29 @@ export default {
       })
     }
 
-    const pickCanvas = (index: number, immediately = false) => {
+    const pickCanvas = (index: number) => {
       const canvas = state.canvases[index]
       if (!canvas) return
 
-      const exec = () => {
+      state.toggling = true
+      setTimeout(() => {
         const canvases = randomizeCanvases(canvas.state.canvas)
         state.canvases.forEach((c, i) => {
           c.state.canvas.polygons = canvases[i].polygons
         })
-      }
-
-      if (immediately) {
-        exec()
-      } else {
-        state.toggling = true
-        setTimeout(() => {
-          exec()
-          state.toggling = false
-          const polygon = state.baseCanvas.polygons[0]
-          if (polygon) {
-            editor.state.fontSize = polygon.fontSize
-            editor.state.fill = polygon.fill
-            editor.state.stroke = polygon.stroke
-            editor.state.fontWeight = polygon.fontWeight
-            editor.state.x = polygon.x
-            editor.state.y = polygon.y
-            editor.state.radian = polygon.radian
-            editor.state.textRadian = polygon.textRadian
-          }
-        }, 300)
-      }
+        state.toggling = false
+        const polygon = state.baseCanvas.polygons[0]
+        if (polygon) {
+          editor.state.fontSize = polygon.fontSize
+          editor.state.fill = polygon.fill
+          editor.state.stroke = polygon.stroke
+          editor.state.fontWeight = polygon.fontWeight
+          editor.state.x = polygon.x
+          editor.state.y = polygon.y
+          editor.state.radian = polygon.radian
+          editor.state.textRadian = polygon.textRadian
+        }
+      }, 300)
     }
 
     watch(
@@ -194,13 +207,23 @@ export default {
       pickCanvas(state.baseIndex)
     }
 
+    const download = () => {
+      if (!hiddenCanvas.value) return
+      // eslint-disable-next-line
+      const svg = (hiddenCanvas.value as any).getElementsByTagName('svg')[0]
+      const data = 'data:image/svg+xml;base64,' + window.btoa(svg.outerHTML)
+      saveFileInWeb(data, 'svg')
+    }
+
     pickCanvas(state.baseIndex)
 
     return {
       state,
       toggleRandomizeKey,
       loadImage,
-      pickCanvas
+      pickCanvas,
+      download,
+      hiddenCanvas
     }
   }
 }

@@ -1,11 +1,13 @@
 <template>
   <div style="position: relative; padding-bottom: 100%;">
-    <div class="absolute inset-0 flex items-center justify-center">
+    <div class="absolute inset-0 flex items-center justify-center overflow-hidden">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="none"
         font-family="sans-serif"
         :viewBox="`0 0 ${canvas.width} ${canvas.height}`"
+        :width="canvas.width"
+        :height="canvas.height"
       >
         <image
           x="0"

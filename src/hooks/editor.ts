@@ -59,6 +59,10 @@ const update = (to: Partial<typeof state>) => {
   state.radian = to.radian !== undefined ? to.radian : state.radian
   state.radian =
     to.angle !== undefined ? (to.angle * Math.PI) / 180 : state.radian
+  state.textRadian =
+    to.textRadian !== undefined ? to.textRadian : state.textRadian
+  state.textRadian =
+    to.textAngle !== undefined ? (to.textAngle * Math.PI) / 180 : state.radian
 
   const saved = { ...state }
   delete saved.angle
