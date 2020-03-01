@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "randomcolor": "^0.5.4",
     "register-service-worker": "^1.6.2",
     "tailwindcss": "^1.2.0",
     "vue": "^3.0.0-alpha.4"

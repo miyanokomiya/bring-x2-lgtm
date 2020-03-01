@@ -7,21 +7,20 @@
 </template>
 
 <script lang="ts">
-import { reactive, watch, SetupContext } from 'vue'
+import { defineComponent, reactive, watch, watchEffect } from 'vue'
 
-type Props = {
-  type: string
-  value: string | number
-}
-
-export default {
+export default defineComponent({
   props: {
     type: { type: String, default: 'text' },
     value: { type: [String, Number], required: true }
   },
-  setup(props: Props, ctx: SetupContext) {
+  setup(props, ctx) {
     const state = reactive<{ model: string | number }>({
-      model: props.value
+      model: ''
+    })
+
+    watchEffect(() => {
+      state.model = props.value
     })
 
     watch(
@@ -33,5 +32,5 @@ export default {
       state
     }
   }
-}
+})
 </script>

@@ -80,24 +80,22 @@
 </template>
 
 <script lang="ts">
-import { SetupContext } from 'vue'
+import { defineComponent } from 'vue'
 import { useEditor } from '@/hooks/editor'
 import DefaultInput from '@/components/atoms/DefaultInput.vue'
 
-type Props = {}
-
-export default {
+export default defineComponent({
   components: { DefaultInput },
   props: {},
-  setup(_: Props, ctx: SetupContext) {
-    // const { pushError } = useMessages()
+  setup() {
     const editor = useEditor()
+    console.log(editor.state)
 
     return {
       editor
     }
   }
-}
+})
 </script>
 
 <style scoped lang="scss"></style>
